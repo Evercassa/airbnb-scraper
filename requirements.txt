@@ -1,5 +1,5 @@
-selenium
-chromedriver-autoinstaller
 Flask
+selenium
 gspread
 oauth2client
+chromedriver-autoinstaller
