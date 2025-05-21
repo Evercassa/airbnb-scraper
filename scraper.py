@@ -28,11 +28,11 @@ def run_scraper():
         urls = [url.strip() for url in urls if url.strip()]
         print(f"🔎 Found {len(urls)} URLs.")
 
-        # === Install compatible ChromeDriver ===
+        # === Install and set up ChromeDriver ===
         chromedriver_autoinstaller.install()
 
-        # === Set up Headless Chrome ===
         options = Options()
+        options.binary_location = "/opt/render/project/chrome/chrome"  # 👈 Path for Chrome on Render
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
@@ -50,7 +50,6 @@ def run_scraper():
 
             rating = "N/A"
             try:
-                # Option 1: Look for "out of 5" text
                 rating_elem = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, "//span[contains(text(), 'out of 5')]"))
                 )
@@ -63,7 +62,6 @@ def run_scraper():
 
             if rating == "N/A":
                 try:
-                    # Option 2: Fallback regex from full HTML
                     html = driver.page_source
                     match = re.search(r'★?\s*(\d\.\d{1,2})\s*[·•]\s*\d+\s+reviews', html)
                     if match:
