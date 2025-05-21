@@ -2,8 +2,4 @@ Flask
 selenium
 gspread
 oauth2client
-undetected-chromedriver
 chromedriver-autoinstaller
-
-
-
