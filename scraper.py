@@ -7,7 +7,6 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import chromedriver_autoinstaller
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -33,18 +32,18 @@ def run_scraper():
         urls = [url.strip() for url in urls if url.strip()]
         print(f"🔎 Found {len(urls)} URLs.")
 
-        # === Install compatible ChromeDriver and set binary ===
+        # === Install compatible ChromeDriver ===
         chromedriver_autoinstaller.install()
-        chrome_path = '/usr/bin/google-chrome'  # Or '/usr/bin/chromium-browser' depending on Render
-        print(f"🧭 Using Chrome binary at: {chrome_path}")
 
+        # === Set up Headless Chrome with Chromium binary ===
         options = webdriver.ChromeOptions()
-        options.binary_location = chrome_path
+        options.binary_location = '/usr/bin/chromium-browser'  # Standard path on Render
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--window-size=1920,1080')
 
+        print("🚀 Launching headless browser...")
         driver = webdriver.Chrome(options=options)
 
         # === Loop Through URLs ===
@@ -85,7 +84,7 @@ def run_scraper():
 
     except Exception as err:
         print("❌ ERROR OCCURRED:")
-        traceback.print_exc()  # This shows the full traceback in Render logs
+        traceback.print_exc()
         return f"❌ Error: {err}", 500
 
 if __name__ == '__main__':
