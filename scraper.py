@@ -10,7 +10,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import chromedriver_autoinstaller  # ✅ NEW
 
 app = Flask(__name__)
 
@@ -33,21 +32,18 @@ def run_scraper():
         urls = [url.strip() for url in urls if url.strip()]
         print(f"🔎 Found {len(urls)} URLs.")
 
-        # === Auto-install compatible ChromeDriver ===
-        chromedriver_autoinstaller.install()
-
-        # === Set up Headless Chrome with Chromium binary ===
+        # === Set up Headless Chrome (Chromium in Docker) ===
         chrome_options = Options()
-        chrome_options.binary_location = '/usr/bin/chromium-browser'  # 👈 required for Render
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.binary_location = '/usr/bin/chromium'  # ✅ Set by Dockerfile
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--window-size=1920,1080')
 
         print("🚀 Launching browser...")
         driver = webdriver.Chrome(options=chrome_options)
 
-        # === Loop Through URLs ===
+        # === Scrape Each URL ===
         for index, url in enumerate(urls, start=2):
             print(f"🌐 Row {index}: {url}")
             driver.get(url)
