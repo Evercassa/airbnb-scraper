@@ -1,17 +1,21 @@
+import os
 import time
 import re
-import os
 from flask import Flask
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 import chromedriver_autoinstaller
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return '✅ Service is up. Visit /run to start scraping.'
 
 @app.route('/run', methods=['GET'])
 def run_scraper():
@@ -28,14 +32,15 @@ def run_scraper():
         urls = [url.strip() for url in urls if url.strip()]
         print(f"🔎 Found {len(urls)} URLs.")
 
-        # === Install and set up ChromeDriver ===
+        # === Auto-install chromedriver and set Chrome binary path ===
         chromedriver_autoinstaller.install()
+        chrome_path = '/usr/bin/google-chrome'  # Use '/usr/bin/chromium-browser' if applicable
 
-        options = Options()
-        options.binary_location = "/opt/render/project/chrome/chrome"  # 👈 Path for Chrome on Render
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+        options = webdriver.ChromeOptions()
+        options.binary_location = chrome_path
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
         options.add_argument("--window-size=1920,1080")
 
         driver = webdriver.Chrome(options=options)

@@ -1,5 +1,5 @@
-Flask
 selenium
+chromedriver-autoinstaller
+Flask
 gspread
 oauth2client
-chromedriver-autoinstaller
