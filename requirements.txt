@@ -2,3 +2,5 @@ Flask
 selenium
 gspread
 oauth2client
+undetected-chromedriver==3.5.3
+
