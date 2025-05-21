@@ -1,5 +1,7 @@
+import os  # ✅ Required for PORT handling
 import time
 import re
+import traceback
 from flask import Flask
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -10,6 +12,10 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return '✅ Service is running. Visit /run to start scraping.'
 
 @app.route('/run', methods=['GET'])
 def run_scraper():
@@ -28,10 +34,12 @@ def run_scraper():
 
         # === Set up Headless Chrome ===
         chrome_options = Options()
+        chrome_options.binary_location = '/usr/bin/chromium-browser'  # 👈 required for Render
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--window-size=1920,1080")
+
         driver = webdriver.Chrome(options=chrome_options)
 
         # === Loop Through URLs ===
@@ -44,7 +52,6 @@ def run_scraper():
 
             rating = "N/A"
             try:
-                # Option 1: Look for "out of 5" text
                 rating_elem = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, "//span[contains(text(), 'out of 5')]"))
                 )
@@ -52,18 +59,17 @@ def run_scraper():
                 match = re.search(r'(\d\.\d{1,2})\s+out of 5', raw_text)
                 if match:
                     rating = match.group(1)
-            except:
-                pass
+            except Exception as e:
+                print(f"⚠️ First method failed: {e}")
 
             if rating == "N/A":
                 try:
-                    # Option 2: Fallback regex from full HTML
                     html = driver.page_source
                     match = re.search(r'★?\s*(\d\.\d{1,2})\s*[·•]\s*\d+\s+reviews', html)
                     if match:
                         rating = match.group(1)
-                except:
-                    pass
+                except Exception as e:
+                    print(f"⚠️ Fallback method failed: {e}")
 
             print(f"✅ Final Rating: {rating}")
             sheet.update_cell(index, 2, rating)
@@ -73,11 +79,10 @@ def run_scraper():
         return "✅ Scraping complete."
 
     except Exception as err:
-        print(f"[ERROR] {err}")
+        print("❌ ERROR OCCURRED:")
+        traceback.print_exc()
         return f"❌ Error: {err}", 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
-
