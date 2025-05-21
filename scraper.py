@@ -2,7 +2,6 @@ import undetected_chromedriver.v2 as uc
 import time
 import re
 from flask import Flask
-import undetected_chromedriver as uc
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -28,16 +27,13 @@ def run_scraper():
         print(f"🔎 Found {len(urls)} URLs.")
 
         # === Set up Headless Chrome ===
-          # === Set up Headless Chrome ===
-    options = uc.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=1920,1080")
+        options = uc.ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--window-size=1920,1080")
 
-
-driver = uc.Chrome(options=options)
-
+        driver = uc.Chrome(options=options)
 
         # === Loop Through URLs ===
         for index, url in enumerate(urls, start=2):
@@ -85,4 +81,3 @@ if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
