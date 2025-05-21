@@ -1,6 +1,7 @@
 import os
 import time
 import re
+import traceback
 from flask import Flask
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -32,16 +33,17 @@ def run_scraper():
         urls = [url.strip() for url in urls if url.strip()]
         print(f"🔎 Found {len(urls)} URLs.")
 
-        # === Auto-install chromedriver and set Chrome binary path ===
+        # === Install compatible ChromeDriver and set binary ===
         chromedriver_autoinstaller.install()
-        chrome_path = '/usr/bin/google-chrome'  # Use '/usr/bin/chromium-browser' if applicable
+        chrome_path = '/usr/bin/google-chrome'  # Or '/usr/bin/chromium-browser' depending on Render
+        print(f"🧭 Using Chrome binary at: {chrome_path}")
 
         options = webdriver.ChromeOptions()
         options.binary_location = chrome_path
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
-        options.add_argument("--window-size=1920,1080")
+        options.add_argument('--window-size=1920,1080')
 
         driver = webdriver.Chrome(options=options)
 
@@ -62,8 +64,8 @@ def run_scraper():
                 match = re.search(r'(\d\.\d{1,2})\s+out of 5', raw_text)
                 if match:
                     rating = match.group(1)
-            except:
-                pass
+            except Exception as e:
+                print(f"⚠️ First method failed: {e}")
 
             if rating == "N/A":
                 try:
@@ -71,8 +73,8 @@ def run_scraper():
                     match = re.search(r'★?\s*(\d\.\d{1,2})\s*[·•]\s*\d+\s+reviews', html)
                     if match:
                         rating = match.group(1)
-                except:
-                    pass
+                except Exception as e:
+                    print(f"⚠️ Fallback method failed: {e}")
 
             print(f"✅ Final Rating: {rating}")
             sheet.update_cell(index, 2, rating)
@@ -82,7 +84,8 @@ def run_scraper():
         return "✅ Scraping complete."
 
     except Exception as err:
-        print(f"[ERROR] {err}")
+        print("❌ ERROR OCCURRED:")
+        traceback.print_exc()  # This shows the full traceback in Render logs
         return f"❌ Error: {err}", 500
 
 if __name__ == '__main__':
