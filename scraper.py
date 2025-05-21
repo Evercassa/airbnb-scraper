@@ -36,8 +36,8 @@ def run_scraper():
         print(f"🔎 Found {len(urls)} URLs.")
 
         # === Set up Chrome Driver Service and Options ===
-        chrome_path = '/usr/bin/google-chrome'             # ✅ Installed by Dockerfile
-        chromedriver_path = '/usr/local/bin/chromedriver'  # ✅ Extracted by Dockerfile
+        chrome_path = '/usr/bin/google-chrome'             # ✅ Chrome installed by Dockerfile
+        chromedriver_path = '/usr/local/bin/chromedriver'  # ✅ Driver placed here by Dockerfile
         service = Service(chromedriver_path)
 
         chrome_options = Options()
