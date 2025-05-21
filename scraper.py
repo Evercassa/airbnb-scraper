@@ -1,8 +1,9 @@
-import undetected_chromedriver as uc
 import time
 import re
+import os
 from flask import Flask
-from selenium.webdriver.chrome.options import Options
+import undetected_chromedriver as uc
+import chromedriver_autoinstaller
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -25,6 +26,9 @@ def run_scraper():
         urls = sheet.col_values(3)[1:]
         urls = [url.strip() for url in urls if url.strip()]
         print(f"🔎 Found {len(urls)} URLs.")
+
+        # === Install compatible ChromeDriver ===
+        chromedriver_autoinstaller.install()
 
         # === Set up Headless Chrome ===
         options = uc.ChromeOptions()
@@ -78,6 +82,5 @@ def run_scraper():
         return f"❌ Error: {err}", 500
 
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
